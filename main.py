@@ -10,8 +10,9 @@ CLASSIFIED_CORRECTLY = 0
 CLASSIFIED_INCORRECTLY = 0
 
 POINTS_ARRAY = []
-ALL_COLORS = ["red", "green", "blue", "violet"]
 CLASSIFIED_POINTS_ARRAY = []
+ALL_COLORS = ["red", "green", "blue", "violet"]
+
 
 
 class Point:
@@ -74,6 +75,18 @@ def distance(point1, point2):
     return ((point1.x - point2.x) ** 2 + (point1.y - point2.y) ** 2) ** (1 / 2)
 
 
+def calculate_distance_to_all_points(point):
+    distances = [(distance(point, p), p) for p in CLASSIFIED_POINTS_ARRAY]
+    return distances
+
+
+def nearest_k_points(point, k):
+    distances = calculate_distance_to_all_points(point)
+    distances.sort(key=lambda x: x[0])
+    nearest_points = [point[1] for point in distances[:k]]
+    return nearest_points
+
+
 def classify_point(point, k):
     nearest_points = nearest_k_points(point, k)
     red_points = 0
@@ -96,18 +109,6 @@ def classify_point(point, k):
 
     CLASSIFIED_POINTS_ARRAY.append(Point(all_colors[-1][1], point.x, point.y))
     return all_colors[-1][1]
-
-
-def calculate_distance_to_all_points(point):
-    distances = [(distance(point, p), p) for p in CLASSIFIED_POINTS_ARRAY]
-    return distances
-
-
-def nearest_k_points(point, k):
-    distances = calculate_distance_to_all_points(point)
-    distances.sort(key=lambda x: x[0])
-    nearest_points = [point[1] for point in distances[:k]]
-    return nearest_points
 
 
 def generate_test_environment():
@@ -186,48 +187,60 @@ def classify_remaining_points():
     bar.finish()
 
 
+def plot_multiple_graphs(points_lists):
+    """
+    Generate a plot with multiple graphs, where each graph corresponds to a list of points.
+
+    Parameters:
+    - points_lists: List of lists of Point instances.
+    """
+    plot_bar = ChargingBar('Plotting classified result', max=8000)
+    fig, ax = plt.subplots(2, 2)  # Create a figure and axis
+
+    # Plot all points of test environment in the first graph
+    for point in points_lists[0]:
+        ax[0, 0].scatter(point.x, point.y, marker='.', color=point.color)
+        ax[0, 0].set_xlabel('X')
+        ax[0, 0].set_ylabel('Y')
+        ax[0, 0].set_title('Test Environment')
+        plot_bar.next()
+    for point in points_lists[1]:
+        ax[0, 1].scatter(point.x, point.y, marker='.', color=point.color)
+        ax[0, 1].set_xlabel('X')
+        ax[0, 1].set_ylabel('Y')
+        ax[0, 1].set_title('k-nn Classification')
+        plot_bar.next()
+    plot_bar.finish()
+
+    for a in ax.flat:
+        a.label_outer()
+
+    fig.suptitle('Scatter Plot of Points with Colors')
+    plt.show()
+
+
 def main():
     start_time = time.time()
     initial_point_generation()
     generate_test_environment()
 
-    plot_bar = ChargingBar('Plotting classified result', max=4000)
-    for point in CLASSIFIED_POINTS_ARRAY:
-        plt.scatter(point.x, point.y, marker='.', s=1, color=point.color)
-        plot_bar.next()
-    plot_bar.finish()
-    plt.xlabel('X')
-    plt.ylabel('Y')
-    plt.title('Classification Classified Points')
-    plt.grid(True)
-    plt.show()
-
-    plot_bar = ChargingBar('Plotting test environment', max=4000)
-    for point in POINTS_ARRAY:
-        plt.scatter(point.x, point.y, marker='.', s=1, color=point.color)
-        plot_bar.next()
-    plot_bar.finish()
-    plt.xlabel('X')
-    plt.ylabel('Y')
-    plt.title('Classification Test Environment')
-    plt.grid(True)
-    plt.show()
+    plot_multiple_graphs([POINTS_ARRAY, CLASSIFIED_POINTS_ARRAY])
 
     print("Correctly classified points: " + str(CLASSIFIED_CORRECTLY))
     print("Incorrectly classified points: " + str(CLASSIFIED_INCORRECTLY))
 
-    classify_remaining_points()
-
-    plot_bar = ChargingBar('Plotting final result')
-    for point in CLASSIFIED_POINTS_ARRAY:
-        plt.scatter(point.x, point.y, marker='.', s=1, color=point.color)
-        plot_bar.next()
-    plot_bar.finish()
-    plt.xlabel('X')
-    plt.ylabel('Y')
-    plt.title('Classification Fully Classified Environment')
-    plt.grid(True)
-    plt.show()
+    # classify_remaining_points()
+    #
+    # plot_bar = ChargingBar('Plotting final result')
+    # for point in CLASSIFIED_POINTS_ARRAY:
+    #     plt.scatter(point.x, point.y, marker='.', s=1, color=point.color)
+    #     plot_bar.next()
+    # plot_bar.finish()
+    # plt.xlabel('X')
+    # plt.ylabel('Y')
+    # plt.title('Classification Fully Classified Environment')
+    # plt.grid(True)
+    # plt.show()
 
     end_time = time.time()
     print("Time elapsed: " + str(end_time - start_time))
