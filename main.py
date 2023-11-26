@@ -4,17 +4,18 @@ import matplotlib.pyplot as plt
 import heapq
 import random
 import time
-from progress.bar import ChargingBar
+from progress.bar import Bar
 
 
-CLASSIFIED_CORRECTLY = 0
-CLASSIFIED_INCORRECTLY = 0
+CLASSIFIED_CORRECTLY = [0, 0, 0, 0]
+CLASSIFIED_INCORRECTLY = [0, 0, 0, 0]
 
-POINTS_ARRAY = []
-CLASSIFIED_1K_POINTS_ARRAY = []
-CLASSIFIED_3K_POINTS_ARRAY = []
-CLASSIFIED_7K_POINTS_ARRAY = []
-CLASSIFIED_15K_POINTS_ARRAY = []
+
+POINTS_ARRAY = set()
+CLASSIFIED_1K_POINTS_ARRAY = set()
+CLASSIFIED_3K_POINTS_ARRAY = set()
+CLASSIFIED_7K_POINTS_ARRAY = set()
+CLASSIFIED_15K_POINTS_ARRAY = set()
 
 ALL_COLORS = ["red", "green", "blue", "violet"]
 
@@ -28,37 +29,37 @@ class Point:
 
 def initial_point_generation():
         # RED POINTS
-        POINTS_ARRAY.append(Point("red", -4500, -4400))
-        POINTS_ARRAY.append(Point("red", -4100, -3000))
-        POINTS_ARRAY.append(Point("red", -2500, -3400))
-        POINTS_ARRAY.append(Point("red", -2000, -1400))
+        POINTS_ARRAY.add(Point("red", -4500, -4400))
+        POINTS_ARRAY.add(Point("red", -4100, -3000))
+        POINTS_ARRAY.add(Point("red", -2500, -3400))
+        POINTS_ARRAY.add(Point("red", -2000, -1400))
 
         # GREEN POINTS
-        POINTS_ARRAY.append(Point("green", 4500, -4400))
-        POINTS_ARRAY.append(Point("green", 4100, -3000))
-        POINTS_ARRAY.append(Point("green", 1800, -2400))
-        POINTS_ARRAY.append(Point("green", 2500, -3400))
-        POINTS_ARRAY.append(Point("green", 2000, -1400))
+        POINTS_ARRAY.add(Point("green", 4500, -4400))
+        POINTS_ARRAY.add(Point("green", 4100, -3000))
+        POINTS_ARRAY.add(Point("green", 1800, -2400))
+        POINTS_ARRAY.add(Point("green", 2500, -3400))
+        POINTS_ARRAY.add(Point("green", 2000, -1400))
 
         # BLUE POINTS
-        POINTS_ARRAY.append(Point("blue", -4500, 4400))
-        POINTS_ARRAY.append(Point("blue", -4100, 3000))
-        POINTS_ARRAY.append(Point("blue", -1800, 2400))
-        POINTS_ARRAY.append(Point("blue", -2500, 3400))
-        POINTS_ARRAY.append(Point("blue", -2000, 1400))
+        POINTS_ARRAY.add(Point("blue", -4500, 4400))
+        POINTS_ARRAY.add(Point("blue", -4100, 3000))
+        POINTS_ARRAY.add(Point("blue", -1800, 2400))
+        POINTS_ARRAY.add(Point("blue", -2500, 3400))
+        POINTS_ARRAY.add(Point("blue", -2000, 1400))
 
         # VIOLET POINTS
-        POINTS_ARRAY.append(Point("violet", 4500, 4400))
-        POINTS_ARRAY.append(Point("violet", 4100, 3000))
-        POINTS_ARRAY.append(Point("violet", 1800, 2400))
-        POINTS_ARRAY.append(Point("violet", 2500, 3400))
-        POINTS_ARRAY.append(Point("violet", 2000, 1400))
+        POINTS_ARRAY.add(Point("violet", 4500, 4400))
+        POINTS_ARRAY.add(Point("violet", 4100, 3000))
+        POINTS_ARRAY.add(Point("violet", 1800, 2400))
+        POINTS_ARRAY.add(Point("violet", 2500, 3400))
+        POINTS_ARRAY.add(Point("violet", 2000, 1400))
 
         for point in POINTS_ARRAY:
-            CLASSIFIED_1K_POINTS_ARRAY.append(Point(point.color, point.x, point.y))
-            CLASSIFIED_3K_POINTS_ARRAY.append(Point(point.color, point.x, point.y))
-            CLASSIFIED_7K_POINTS_ARRAY.append(Point(point.color, point.x, point.y))
-            CLASSIFIED_15K_POINTS_ARRAY.append(Point(point.color, point.x, point.y))
+            CLASSIFIED_1K_POINTS_ARRAY.add(Point(point.color, point.x, point.y))
+            CLASSIFIED_3K_POINTS_ARRAY.add(Point(point.color, point.x, point.y))
+            CLASSIFIED_7K_POINTS_ARRAY.add(Point(point.color, point.x, point.y))
+            CLASSIFIED_15K_POINTS_ARRAY.add(Point(point.color, point.x, point.y))
 
 
 def distance(point1, point2):
@@ -72,14 +73,11 @@ def calculate_distance_to_all_points(point, array_of_points):
 
 def nearest_k_points(point, k, array_of_points):
     distances = calculate_distance_to_all_points(point, array_of_points)
-    # distances.sort(key=lambda x: x[0])
-    # nearest_points = [point[1] for point in distances[:k]]
     nearest_points = heapq.nsmallest(k, distances, key=lambda x: x[0])
-    # print(nearest_points)
     return nearest_points
 
 
-def classify_point(point, k, array_of_points):
+def classify_point(point, k, array_of_points, color):
     nearest_points = nearest_k_points(point, k, array_of_points)
     red_points = 0
     green_points = 0
@@ -101,14 +99,32 @@ def classify_point(point, k, array_of_points):
 
     # CLASSIFIED_POINTS_ARRAY.append(Point(all_colors[-1][1], point.x, point.y))
     # return all_colors[-1][1]
+    if all_colors[-1][1] == color:
+        if k == 1:
+            CLASSIFIED_CORRECTLY[0] += 1
+        elif k == 3:
+            CLASSIFIED_CORRECTLY[1] += 1
+        elif k == 7:
+            CLASSIFIED_CORRECTLY[2] += 1
+        elif k == 15:
+            CLASSIFIED_CORRECTLY[3] += 1
+    else:
+        if k == 1:
+            CLASSIFIED_INCORRECTLY[0] += 1
+        elif k == 3:
+            CLASSIFIED_INCORRECTLY[1] += 1
+        elif k == 7:
+            CLASSIFIED_INCORRECTLY[2] += 1
+        elif k == 15:
+            CLASSIFIED_INCORRECTLY[3] += 1
     return Point(all_colors[-1][1], point.x, point.y)
 
 
 def generate_test_environment():
-    bar = ChargingBar('Generating points and classify them', max=40000)
+    bar = Bar('Generating points and classify them', max=40000)
 
     last_color = ""
-    for i in range(0, 10000):
+    for i in range(0, 40000):
 
         new_point_color = ALL_COLORS[random.randint(0, 3)]
         while new_point_color == last_color:
@@ -119,36 +135,27 @@ def generate_test_environment():
             x, y = generate_x_and_y(new_point_color)
             # check if point with same coordinates already exists, repeat until new coordinates are found
             while not new_coords:
-                for point in POINTS_ARRAY:
-                    if point.x == x and point.y == y:
-                        x, y = generate_x_and_y(new_point_color)
-                        break
-                    new_coords = True
+                if (x, y) in POINTS_ARRAY:
+                    x, y = generate_x_and_y(new_point_color)
+                    break
+                new_coords = True
         else:
             # generate random coordinates
             x = random.randint(-5000, 5000)
             y = random.randint(-5000, 5000)
             # check if point with same coordinates already exists, repeat until new coordinates are found
             while not new_coords:
-                for point in POINTS_ARRAY:
-                    if point.x == x and point.y == y:
-                        x = random.randint(-5000, 5000)
-                        y = random.randint(-5000, 5000)
-                        break
-                    new_coords = True
+                if (x, y) in POINTS_ARRAY:
+                    x = random.randint(-5000, 5000)
+                    y = random.randint(-5000, 5000)
+                    break
+                new_coords = True
 
-        # if classify_point(Point(new_point_color, x, y), 1).color == new_point_color:
-        #     global CLASSIFIED_CORRECTLY
-        #     CLASSIFIED_CORRECTLY += 1
-        # else:
-        #     global CLASSIFIED_INCORRECTLY
-        #     CLASSIFIED_INCORRECTLY += 1
-
-        POINTS_ARRAY.append(Point(new_point_color, x, y))
-        CLASSIFIED_1K_POINTS_ARRAY.append(classify_point(Point(new_point_color, x, y), 1, CLASSIFIED_1K_POINTS_ARRAY))
-        CLASSIFIED_3K_POINTS_ARRAY.append(classify_point(Point(new_point_color, x, y), 3, CLASSIFIED_3K_POINTS_ARRAY))
-        CLASSIFIED_7K_POINTS_ARRAY.append(classify_point(Point(new_point_color, x, y), 7, CLASSIFIED_7K_POINTS_ARRAY))
-        CLASSIFIED_15K_POINTS_ARRAY.append(classify_point(Point(new_point_color, x, y), 15, CLASSIFIED_15K_POINTS_ARRAY))
+        POINTS_ARRAY.add((x, y))
+        CLASSIFIED_1K_POINTS_ARRAY.add(classify_point(Point(new_point_color, x, y), 1, CLASSIFIED_1K_POINTS_ARRAY, new_point_color))
+        CLASSIFIED_3K_POINTS_ARRAY.add(classify_point(Point(new_point_color, x, y), 3, CLASSIFIED_3K_POINTS_ARRAY, new_point_color))
+        CLASSIFIED_7K_POINTS_ARRAY.add(classify_point(Point(new_point_color, x, y), 7, CLASSIFIED_7K_POINTS_ARRAY, new_point_color))
+        CLASSIFIED_15K_POINTS_ARRAY.add(classify_point(Point(new_point_color, x, y), 15, CLASSIFIED_15K_POINTS_ARRAY, new_point_color))
 
         last_color = copy.deepcopy(new_point_color)
         bar.next()
@@ -171,44 +178,15 @@ def generate_x_and_y(new_point_color):
     return x, y
 
 
-# TODO FIX THAT SHIT
-# classify all remaining points on the grid
-# def classify_remaining_points():
-#
-#     bar = ChargingBar('Classifying all remaining coordinates')
-#     for x in range(-5000, 5000):
-#         for y in range(-5000, 5000):
-#             # check if point with same coordinates already exists, repeat until new coordinates are found
-#             for point in CLASSIFIED_POINTS_ARRAY:
-#                 if point.x != x and point.y != y:
-#                     classify_point(Point("unknown", x, y), 1)
-#                     bar.next()
-#     bar.finish()
-
 def batch_plot(ax, points):
     x_values = [point.x for point in points]
     y_values = [point.y for point in points]
-    ax.scatter(x_values, y_values, marker='.', s=10, color=[point.color for point in points])
+    ax.scatter(x_values, y_values, marker='.', color=[point.color for point in points])
 
 
-def plot_multiple_graphs(points_lists):
+def plot_multiple_graphs(points_lists, start_time):
 
     fig, ax = plt.subplots(2, 2)
-
-    # for point in points_lists[0]:
-    #     ax[0, 0].scatter(point.x, point.y, marker='.', s=1, color=point.color)
-    #     plot_bar.next()
-    #
-    # for point in points_lists[1]:
-    #     ax[0, 1].scatter(point.x, point.y, marker='.', s=1, color=point.color)
-    #     plot_bar.next()
-    # for point in points_lists[2]:
-    #     ax[1, 0].scatter(point.x, point.y, marker='.', s=1, color=point.color)
-    #     plot_bar.next()
-    #
-    # for point in points_lists[3]:
-    #     ax[1, 1].scatter(point.x, point.y, marker='.', s=1, color=point.color)
-    #     plot_bar.next()
 
     batch_plot(ax[0, 0], points_lists[0])
     batch_plot(ax[0, 1], points_lists[1])
@@ -217,28 +195,30 @@ def plot_multiple_graphs(points_lists):
 
     ax[0, 0].set_xlabel('X')
     ax[0, 0].set_ylabel('Y')
-    ax[0, 0].set_title('k-nn = 1')
+    ax[0, 0].set_title('k-nn = 1 | success: ' + str(int(CLASSIFIED_CORRECTLY[0] / (CLASSIFIED_CORRECTLY[2] + CLASSIFIED_INCORRECTLY[0]) * 100)) + '%')
     ax[0,0].margins(0)
 
     ax[0, 1].set_xlabel('X')
     ax[0, 1].set_ylabel('Y')
-    ax[0, 1].set_title('k-nn = 3')
+    ax[0, 1].set_title('k-nn = 3 | success: ' + str(int(CLASSIFIED_CORRECTLY[1] / (CLASSIFIED_CORRECTLY[2] + CLASSIFIED_INCORRECTLY[1]) * 100)) + '%')
     ax[0, 1].margins(0)
 
     ax[1, 0].set_xlabel('X')
     ax[1, 0].set_ylabel('Y')
-    ax[1, 0].set_title('k-nn = 7')
+    ax[1, 0].set_title('k-nn = 7 | success: ' + str(int(CLASSIFIED_CORRECTLY[2] / (CLASSIFIED_CORRECTLY[2] + CLASSIFIED_INCORRECTLY[2]) * 100)) + '%')
     ax[1, 0].margins(0)
 
     ax[1, 1].set_xlabel('X')
     ax[1, 1].set_ylabel('Y')
-    ax[1, 1].set_title('k-nn = 15')
+    ax[1, 1].set_title('k-nn = 15 | success: ' + str(int(CLASSIFIED_CORRECTLY[3] / (CLASSIFIED_CORRECTLY[2] + CLASSIFIED_INCORRECTLY[3]) * 100)) + '%')
     ax[1, 1].margins(0)
 
     for a in ax.flat:
         a.label_outer()
 
     fig.suptitle('Classification of 40k points')
+    end_time = time.time()
+    print("Time elapsed: " + str(int(end_time - start_time)) + " seconds")
 
     plt.show()
 
@@ -248,26 +228,8 @@ def main():
     initial_point_generation()
     generate_test_environment()
 
-    plot_multiple_graphs([CLASSIFIED_1K_POINTS_ARRAY, CLASSIFIED_3K_POINTS_ARRAY, CLASSIFIED_7K_POINTS_ARRAY, CLASSIFIED_15K_POINTS_ARRAY])
+    plot_multiple_graphs([CLASSIFIED_1K_POINTS_ARRAY, CLASSIFIED_3K_POINTS_ARRAY, CLASSIFIED_7K_POINTS_ARRAY, CLASSIFIED_15K_POINTS_ARRAY], start_time)
 
-    # print("Correctly classified points: " + str(CLASSIFIED_CORRECTLY))
-    # print("Incorrectly classified points: " + str(CLASSIFIED_INCORRECTLY))
-
-    # classify_remaining_points()
-    #
-    # plot_bar = ChargingBar('Plotting final result')
-    # for point in CLASSIFIED_POINTS_ARRAY:
-    #     plt.scatter(point.x, point.y, marker='.', s=1, color=point.color)
-    #     plot_bar.next()
-    # plot_bar.finish()
-    # plt.xlabel('X')
-    # plt.ylabel('Y')
-    # plt.title('Classification Fully Classified Environment')
-    # plt.grid(True)
-    # plt.show()
-
-    end_time = time.time()
-    print("Time elapsed: " + str(end_time - start_time))
 
 
 if __name__ == '__main__':
